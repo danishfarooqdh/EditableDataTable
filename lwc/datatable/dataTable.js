@@ -6,26 +6,24 @@ export default class DataTable extends LightningElement {
     
     @api records;
     @api tableColumns;
-    @api updatedRecords;
 
     connectedCallback(){
 
-        this.fetchModifiedColumns();
-       
+        this.fetchModifiedColumns();       
     }
 
 
 
     fetchModifiedColumns(){
 
-        console.log('====>Columns' + JSON.stringify(this.tableColumns));
+     
         let columnsJson = JSON.stringify(this.tableColumns);
         let paramsObj = 
             {'columns' : columnsJson }
     
         executeApex({action : 'modifyColumns' , parameters : paramsObj}).then(response => {
             this.updatedColumns = response;
-            console.log('====>Updated' + JSON.stringify(this.updatedColumns));
+        
         }).catch(error => {
 
         });
