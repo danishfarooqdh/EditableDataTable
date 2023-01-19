@@ -11,6 +11,7 @@
             <propertyType name="records" extends="SObject" label="Input Type" description="Generic sObject data type used for input sObject properties" />
             <property name="records" type="{records[]}" label="Records" description="Queried records from Flow"/>
             <property name="tableColumns"  label="Columns" type="apex://DataTableColumns[]" role="inputonly"/>
+            <property name="updatedRecords"  type="{records[]}" label="Updated Records"  role="outputonly"/>
            
         </targetConfig>
     </targetConfigs>
