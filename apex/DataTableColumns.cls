@@ -1,4 +1,3 @@
-
 /***
  * @description: Wraper class for holding column defination for showing dynamic Datatable
  * @date 05.01.2023
@@ -32,6 +31,12 @@ global class DataTableColumns {
 
          @AuraEnabled
          public string objName;
+
+         @AuraEnabled
+         public Record record;
+
+         @AuraEnabled
+         public string fieldApiName;
     }
 
     public class Option{
@@ -41,5 +46,11 @@ global class DataTableColumns {
 
         @AuraEnabled
         public string value;
-    }   
+    } 
+    
+    public class Record {
+
+        @AuraEnabled
+        public string fieldName;
+    }
 }
