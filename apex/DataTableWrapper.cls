@@ -23,24 +23,26 @@ public with sharing class DataTableWrapper {
         Schema.SObjectType objectSchema = schemaMap.get(sObjectName);
         Map<String, Schema.SObjectField> fieldMap = objectSchema.getDescribe().fields.getMap();
         DataTableColumns.Attributes attributes;
-        DataTableColumns.Option option;
+        DataTableColumns.Record record;
       
         for(DataTableColumns iCol : columns){
              
             if(iCol.editable == null || !iCol.editable) continue;
              
             attributes = new DataTableColumns.Attributes();
-            option = null;
-           
             Schema.DescribeFieldResult fieldResult = fieldMap.get(iCol.fieldName).getDescribe();
             Schema.DisplayType fielddataType = fieldResult.getType();
             List<Schema.PicklistEntry> lstPickListValues = fieldResult.getPickListValues();
             if(fielddataType == Schema.DisplayType.Picklist){
-                option = new DataTableColumns.Option();
+
+                record = new DataTableColumns.Record();
                 iCol.type = 'customPicklist';
                 iCol.editable = false;
                 iCol.wrapText = true;
                 attributes.options = fetchPickListData(lstPickListValues);
+                record.fieldName = 'Id';
+                attributes.record = record;
+                attributes.fieldApiName = iCol.fieldName;
                 iCol.typeAttributes = attributes;   
                 continue;    
             }   
@@ -85,9 +87,5 @@ public with sharing class DataTableWrapper {
         @InvocableVariable(label='Modified Columns' description='sObject records for Input' required=true)
         public List<DataTableColumns> definedColumns;
 
-
     }
-
-    
-
 }
