@@ -3,51 +3,53 @@
  * @date 07.01.2023
  * @author Danish Farooq
  */
-public with sharing class DataTableWrapper {
+public  inherited sharing class DataTableWrapper {
+
     public DataTableWrapper() {
 
     }
  
-    @InvocableMethod
-    public static List<Response> execute (List<Request> req) {
-
-        Response res = new Response();
-        res.definedColumns = modifyColumnStructure(req[0].sObjectName,req[0].definedColumns);
-        return new List<Response> { res };
-      
-    }
-
+    /**
+     * Override the column type based of the field type
+     * @param sObjectName 
+     * @param columns 
+     * @return  `List<DataTableColumns>`
+     */
     public static List<DataTableColumns> modifyColumnStructure(string sObjectName, List<DataTableColumns> columns ){
          
         Map<String, Schema.SObjectType> schemaMap = Schema.getGlobalDescribe();
         Schema.SObjectType objectSchema = schemaMap.get(sObjectName);
         Map<String, Schema.SObjectField> fieldMap = objectSchema.getDescribe().fields.getMap();
         DataTableColumns.Attributes attributes;
-        DataTableColumns.Option option;
+        DataTableColumns.Record record;
       
         for(DataTableColumns iCol : columns){
              
             if(iCol.editable == null || !iCol.editable) continue;
              
             attributes = new DataTableColumns.Attributes();
-            option = null;
-           
             Schema.DescribeFieldResult fieldResult = fieldMap.get(iCol.fieldName).getDescribe();
             Schema.DisplayType fielddataType = fieldResult.getType();
-            List<Schema.PicklistEntry> lstPickListValues = fieldResult.getPickListValues();
-            if(fielddataType == Schema.DisplayType.Picklist){
-                option = new DataTableColumns.Option();
+
+            iCol.editable = false;
+            iCol.wrapText = true;
+
+            if(fielddataType == Schema.DisplayType.PICKLIST){
+
+                List<Schema.PicklistEntry> lstPickListValues = fieldResult.getPickListValues();
+                record = new DataTableColumns.Record();
                 iCol.type = 'customPicklist';
                 iCol.editable = false;
                 iCol.wrapText = true;
-                attributes.options = fetchPickListData(lstPickListValues);
+                attributes.options = getPickListValues(lstPickListValues);
+                record.fieldName = 'Id';
+                attributes.record = record;
+                attributes.fieldApiName = iCol.fieldName;
                 iCol.typeAttributes = attributes;   
                 continue;    
             }   
-            if(fielddataType == Schema.DisplayType.Reference){
+            if(fielddataType == Schema.DisplayType.REFERENCE){
                 iCol.type = 'customLookup';
-                iCol.editable = false;
-                iCol.wrapText = true;
                 attributes.objName = sObjectName;
                 iCol.typeAttributes = attributes;   
                 continue;    
@@ -56,7 +58,7 @@ public with sharing class DataTableWrapper {
         return columns;
     }
 
-    private static List<DataTableColumns.Option> fetchPickListData(List<Schema.PicklistEntry> lstPickListValues){
+    private static List<DataTableColumns.Option> getPickListValues(List<Schema.PicklistEntry> lstPickListValues){
 
         List<DataTableColumns.Option> options = new  List<DataTableColumns.Option>();
         for( Schema.PicklistEntry pickList : lstPickListValues){
@@ -68,26 +70,4 @@ public with sharing class DataTableWrapper {
         return options;
 
     }
-
-
-    public class Request{
-
-        @InvocableVariable(label='Selected Columns' description='sObject records for Input' required=true)
-        public List<DataTableColumns> definedColumns;
-
-        @InvocableVariable(label='sObject Name' description='Object name to get the Fields Details' required=true)
-        public string sObjectName;
-
-    }
-
-    public class Response{
-
-        @InvocableVariable(label='Modified Columns' description='sObject records for Input' required=true)
-        public List<DataTableColumns> definedColumns;
-
-
-    }
-
-    
-
 }
