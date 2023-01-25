@@ -7,6 +7,10 @@ public inherited sharing class DataTableCaller implements Callable {
     
     private static DataTableCaller callerInstance;
 
+    /**
+     * Used to instantiate class according to singleton pattern
+     * @return  `DataTableCaller`
+     */
     public static DataTableCaller getInstance(){
 
         if (callerInstance == null) {
@@ -14,17 +18,25 @@ public inherited sharing class DataTableCaller implements Callable {
         }
         return callerInstance;
     }
-
-    public Object call(string action, Map<String, Object> parameters ){
+    /**
+     * implementation for dynamic method calling
+     * @param action action to call
+     * @param parameters each method parameters
+     * @return  `Object`
+     */
+    public Object call(String action, Map<String, Object> parameters ){
 
         Object callResult;
+
         switch on action{
 
             when 'modifyColumns'{
+                       
                 String columns = (String)parameters.get('columns');
+                Id recordId = (Id)parameters.get('recordId');
+                String objApiName = recordId.getsObjectType().getDescribe().getName();
                 List<DataTableColumns> dtCols = (List<DataTableColumns>) JSON.deserialize(columns,List<DataTableColumns>.class);
-                //sObject name can be dynamic for demo I just hard coded here
-                callResult =  DataTableWrapper.modifyColumnStructure('Account' , dtCols);
+                callResult =  DataTableWrapper.modifyColumnStructure(objApiName, dtCols);
             }
 
         }
