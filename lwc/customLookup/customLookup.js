@@ -14,6 +14,7 @@ export default class customLookUp extends LightningElement {
     @track isValueSelected;
     @track blurTimeout;
     searchTerm;
+    hasRendered = false;
     //css
     @track boxClass = 'slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click slds-has-focus';
     @track inputClass = '';
@@ -22,11 +23,13 @@ export default class customLookUp extends LightningElement {
         if (data) {
             this.error = undefined;
             this.records = data;
+
         } else if (error) {
             this.error = error;
-            this.records = undefined;
+            this.records = undefined;         
         }
     }
+
     handleClick() {
         this.searchTerm = '';
         this.inputClass = 'slds-has-focus';
@@ -55,8 +58,23 @@ export default class customLookUp extends LightningElement {
         this.isValueSelected = false;
     }
 
+    constructor(){
+        super();
+        this.searchTerm = '';
+    }
+
     onChange(event) {
         this.searchTerm = event.target.value;
     }
 
+    renderedCallback(){
+
+        if(this.value == null || this.records == undefined || this.hasRendered ) return;
+        this.isValueSelected = true;
+        let selectedRecord = this.records.find(record => record.Id == this.value);
+        this.selectedName = selectedRecord.Name;
+        this.boxClass = 'slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click slds-has-focus';
+        this.hasRendered = true;
+
+    }
 }
